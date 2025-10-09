@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ćwiczenia - JavaScript podstawy</title>
+</head>
+<body>
+<button onclick="showAlert()">Naciśnij mnie - alert</button>
+<script>
+  function showAlert() {
+    alert("Witaj w kursie!");
+  }
+</script>
+<br>
+<br>
+
+<button onclick="incrementCounter()">Naciśnij mnie - inkrementacja</button>
+<p id="counter">0</p>
+<script>
+  let count = 0;
+  function incrementCounter() {
+    count++;
+    document.getElementById("counter").innerText = count;
+  }
+</script>
+
+<br>
+<br>
+
+<h1 onclick="changeColor(this)">Nagłówek</h1>
+<script>
+  function changeColor(element) {
+    element.style.color = "blue";
+  }
+</script>
+
+</body>
+
+</html>
