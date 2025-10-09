@@ -1,0 +1,68 @@
+/* Ogólny reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Nagłówek i stopka */
+header, footer {
+  background-color: #1e3a8a;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Główny kontener - Flexbox */
+.container {
+  display: flex;
+  min-height: 70vh;
+}
+
+/* Sidebar (menu boczne) */
+.sidebar {
+  background-color: #f1f5f9;
+  width: 200px;
+  padding: 1rem;
+}
+
+.sidebar ul {
+  list-style: none;
+}
+
+.sidebar li {
+  margin-bottom: 0.5rem;
+}
+
+.sidebar a {
+  text-decoration: none;
+  color: #1e3a8a;
+  font-weight: 500;
+}
+
+/* Główna treść */
+main {
+  flex: 1;
+  padding: 1rem;
+}
+
+/* Formularz sekcja */
+.formularz {
+  margin-top: 2rem;
+}
+
+/* 📱 MEDIA QUERIES — układ mobilny */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    order: 2; /* menu pod treścią */
+  }
+
+  main {
+    order: 1;
+  }
+}
