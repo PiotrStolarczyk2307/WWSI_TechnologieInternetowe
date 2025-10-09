@@ -1,0 +1,19 @@
+label {
+    background-color: #000000;
+    color:#ffff00
+}
+
+body {
+    margin: 10px 20px;
+    padding:10px 15px 20px 25px;
+    background-image:url(images/background-image.png);
+}
+
+
+#fname {
+    color: #ff0000;
+}
+
+.klasa {
+    background-color: #d2691e;
+}
