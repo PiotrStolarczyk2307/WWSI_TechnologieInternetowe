@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>📚 Wypożyczalnia książek</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; }
+    input, button { margin: 0.3em; padding: 0.4em; }
+    section { margin-bottom: 2em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .error { color: red; }
+    .success { color: green; }
+  </style>
+</head>
+<body>
+  <h1>📚 Wypożyczalnia książek</h1>
+
+  <section>
+    <h2>👤 Dodaj czytelnika</h2>
+    <input id="memberName" placeholder="Imię" />
+    <input id="memberEmail" placeholder="Email" />
+    <button onclick="addMember()">Dodaj</button>
+    <div id="memberMsg"></div>
+  </section>
+
+  <section>
+    <h2>📚 Dodaj książkę</h2>
+    <input id="bookTitle" placeholder="Tytuł" />
+    <input id="bookAuthor" placeholder="Autor" />
+    <input id="bookCopies" type="number" placeholder="Egzemplarze" />
+    <button onclick="addBook()">Dodaj</button>
+    <div id="bookMsg"></div>
+  </section>
+
+  <section>
+    <h2>📖 Książki dostępne</h2>
+    <button onclick="loadBooks()">Odśwież</button>
+    <ul id="bookList"></ul>
+  </section>
+
+  <section>
+    <h2>📋 Aktywne wypożyczenia</h2>
+    <button onclick="loadLoans()">Odśwież</button>
+    <ul id="loanList"></ul>
+  </section>
+
+  <script>
+    const api = 'http://localhost:3000/api';
+
+    function showMessage(id, msg, isError = false) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.className = isError ? 'error' : 'success';
+      setTimeout(() => el.textContent = '', 3000);
+    }
+
+    function addMember() {
+      fetch(`${api}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: document.getElementById('memberName').value,
+          email: document.getElementById('memberEmail').value
+        })
+      }).then(res => {
+        if (res.status === 409) throw new Error('Email już istnieje');
+        return res.json();
+      }).then(() => showMessage('memberMsg', 'Dodano czytelnika'))
+        .catch(err => showMessage('memberMsg', err.message, true));
+    }
+
+    function addBook() {
+      fetch(`${api}/books`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: document.getElementById('bookTitle').value,
+          author: document.getElementById('bookAuthor').value,
+          copies: parseInt(document.getElementById('bookCopies').value)
+        })
+      }).then(res => res.json())
+        .then(() => {
+          showMessage('bookMsg', 'Dodano książkę');
+          loadBooks();
+        });
+    }
+
+    function loadBooks() {
+      fetch(`${api}/books`)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('bookList');
+          list.innerHTML = '';
+          data.forEach(book => {
+            const li = document.createElement('li');
+            li.innerHTML = `${book.id}. <strong>${book.title}</strong> — ${book.author} 
+              (${book.copies} egz.) 
+              <button onclick="borrowBook(${book.id})">Wypożycz</button>`;
+            list.appendChild(li);
+          });
+        });
+    }
+
+    function borrowBook(bookId) {
+      const memberId = prompt('Podaj ID czytelnika:');
+      fetch(`${api}/loans/borrow`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ member_id: parseInt(memberId), book_id: bookId })
+      }).then(res => {
+        if (res.status === 409) throw new Error('Brak dostępnych egzemplarzy');
+        return res.json();
+      }).then(() => {
+        alert('Wypożyczono!');
+        loadBooks();
+        loadLoans();
+      }).catch(err => alert(err.message));
+    }
+
+    function loadLoans() {
+      fetch(`${api}/loans`)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('loanList');
+          list.innerHTML = '';
+          data.filter(l => l.return_date === null).forEach(loan => {
+            const li = document.createElement('li');
+            li.innerHTML = `Wypożyczenie #${loan.id}: książka ${loan.book_id}, czytelnik ${loan.member_id} 
+              <button onclick="returnBook(${loan.id})">Zwróć</button>`;
+            list.appendChild(li);
+          });
+        });
+    }
+
+    function returnBook(loanId) {
+      fetch(`${api}/loans/return`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ loan_id: loanId })
+      }).then(res => {
+        if (res.status === 409) throw new Error('Już zwrócono');
+        return res.json();
+      }).then(() => {
+        alert('Zwrócono!');
+        loadBooks();
+        loadLoans();
+      }).catch(err => alert(err.message));
+    }
+
+    // Załaduj dane przy starcie
+    loadBooks();
+    loadLoans();
+  </script>
+</body>
+</html>
