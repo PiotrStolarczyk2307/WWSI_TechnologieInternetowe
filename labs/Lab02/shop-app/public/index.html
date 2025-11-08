@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sklep internetowy</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; max-width: 600px; }
+    h1 { font-size: 1.5em; margin-bottom: 1em; }
+    .section { margin-bottom: 2em; }
+    .product, .cart-item { margin-bottom: 0.5em; }
+    button { background-color: #007bff; color: white; border: none; padding: 0.4em 0.8em; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    input[type="text"] { padding: 0.4em; margin-top: 0.5em; width: 200px; }
+    #summary { margin-top: 1em; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>🛒 Sklep internetowy</h1>
+
+  <div class="section">
+    <h2>Produkty</h2>
+    <div id="product-list"></div>
+  </div>
+
+  <div class="section">
+    <h2>Koszyk</h2>
+    <div id="cart-list"></div>
+    <div id="summary">Koszyk jest aktualny (0.00 PLN)</div>
+    <input type="text" id="coupon-code" placeholder="🎟️ Kupon rabatowy (np. RABAT10)" />
+    <br><br>
+    <button onclick="checkout()">Zamów</button>
+  </div>
+
+  <script>
+    let cartTotal = 0;
+
+    async function loadProducts() {
+      const res = await fetch('/api/products');
+      const products = await res.json();
+      const list = document.getElementById('product-list');
+      list.innerHTML = '';
+      products.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'product';
+        div.innerHTML = `
+          <strong>${p.name}</strong> - ${p.price.toFixed(2)} zł
+          <button onclick="addToCart(${p.id})">Dodaj</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    async function loadCart() {
+      const res = await fetch('/api/cart/items');
+      const cart = await res.json();
+      const list = document.getElementById('cart-list');
+      list.innerHTML = '';
+      cartTotal = 0;
+
+      if (cart.length === 0) {
+        list.innerHTML = '<em>Koszyk jest pusty.</em>';
+      } else {
+        cart.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'cart-item';
+          div.innerHTML = `<strong>${item.name}</strong> × ${item.amount} — ${item.price.toFixed(2)} zł`;
+          list.appendChild(div);
+          cartTotal += item.price * item.amount;
+        });
+      }
+
+      document.getElementById('summary').textContent = `Koszyk jest aktualny (${cartTotal.toFixed(2)} PLN)`;
+    }
+
+    async function addToCart(product_id) {
+      await fetch('/api/cart/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id, amount: 1 })
+      });
+      loadCart();
+    }
+
+    async function checkout() {
+      const coupon = document.getElementById('coupon-code').value.trim();
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(coupon ? { coupon_code: coupon } : {})
+      });
+      const data = await res.json();
+
+      if (res.status === 400 && data.error === 'Koszyk jest pusty') {
+        alert('❌ Nie można złożyć zamówienia.');
+        return;
+      }
+
+      if (res.status === 201 && data.order_id) {
+        alert(`✅ Zamówienie nr ${data.order_id} złożone!\nSuma: ${data.total.toFixed(2)} zł`);
+        document.getElementById('coupon-code').value = '';
+        loadCart();
+      } else {
+        alert('❌ Błąd przy składaniu zamówienia.');
+      }
+    }
+
+    loadProducts();
+    loadCart();
+  </script>
+</body>
+</html>
