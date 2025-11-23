@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SqlTelemetryProApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bf57016e7d25092491f7e5f73492680d84aacfa1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+261e004bcef66779ce4af4c29996c9791f4404bc")]
 [assembly: System.Reflection.AssemblyProductAttribute("SqlTelemetryProApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SqlTelemetryProApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
