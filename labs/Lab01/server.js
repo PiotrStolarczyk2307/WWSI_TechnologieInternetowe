@@ -1,13 +1,34 @@
-const express = require('express');
+import express from 'express';
+import morgan from 'morgan';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { initDb, db } from './src/db.js';
+import api from './src/routes/api.js';
+import ui from './src/routes/ui.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+await initDb();
+
 const app = express();
+app.use(morgan('dev'));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static('public'))
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
-app.use('/api/members', require('./routes/members'));
-app.use('/api/books', require('./routes/books'));
-app.use('/api/loans', require('./routes/loans'));
+app.use('/api', api);
+app.use('/', ui);
 
-app.listen(3000, () => {
-  console.log('📚 Serwer wypożyczalni działa na http://localhost:3000');
+// error handler
+app.use((err, req, res, next) => {
+  console.error(err);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ message: 'Internal Server Error' });
+});
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`LibraryLab Node listening on http://localhost:${port}`);
 });
