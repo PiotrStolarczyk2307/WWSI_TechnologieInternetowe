@@ -1,0 +1,14 @@
+<h1>Moderacja komentarzy</h1>
+<ul>
+  <% comments.forEach(c => { %>
+    <li>
+      <strong><%= c.author %>:</strong> <%= c.body %>
+      <form method="POST" action="/admin/<%= c.id %>/approve" style="display:inline;">
+        <button>Zatwierdź</button>
+      </form>
+      <form method="POST" action="/admin/<%= c.id %>/reject" style="display:inline;">
+        <button>Odrzuć</button>
+      </form>
+    </li>
+  <% }) %>
+</ul>

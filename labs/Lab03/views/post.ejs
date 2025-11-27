@@ -1,0 +1,16 @@
+<h1><%= post.title %></h1>
+<p><%= post.body %></p>
+
+<h2>Komentarze</h2>
+<ul>
+  <% comments.forEach(c => { %>
+    <li><strong><%= c.author %>:</strong> <%= c.body %></li>
+  <% }) %>
+</ul>
+
+<h3>Dodaj komentarz</h3>
+<form method="POST" action="/post/<%= post.id %>/comments">
+  <input name="author" placeholder="Autor" required />
+  <textarea name="body" placeholder="Treść" required></textarea>
+  <button type="submit">Wyślij</button>
+</form>
