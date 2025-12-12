@@ -32,3 +32,5 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`LibraryLab Node listening on http://localhost:${port}`);
 });
+
+console.log(process.version);
